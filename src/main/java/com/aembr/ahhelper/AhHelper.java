@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class AhHelper {
     public static final String MOD_ID = "ah-helper";
     public static final String MOD_NAME = "AH-Helper";
-    public static final String VERSION = "1.12.2-0.1.1";
+    public static final String VERSION = "1.12.2-0.1.2";
 
     public static Pattern usesPattern = Pattern.compile("§.(\\d+) §fremaining uses");
     public static Pattern pricePattern = Pattern.compile("§5§o§9Price: §e\\$(.*)");
@@ -90,6 +90,10 @@ public class AhHelper {
         }
 
         totalCount = itemStack.getCount() * itemCount;
+        if (totalCount == 1) {
+            return;
+        }
+
         int pricePerItem = totalPrice / totalCount;
         tooltip.set(priceLineIndex, priceString + " §7($" + String.format("%,d", pricePerItem) + " each)");
     }
