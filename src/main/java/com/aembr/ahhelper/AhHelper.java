@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class AhHelper {
     public static final String MOD_ID = "ah-helper";
     public static final String MOD_NAME = "AH-Helper";
-    public static final String VERSION = "1.12.2-0.1";
+    public static final String VERSION = "1.12.2-0.1.1";
 
     public static Pattern usesPattern = Pattern.compile("§.(\\d+) §fremaining uses");
     public static Pattern pricePattern = Pattern.compile("§5§o§9Price: §e\\$(.*)");
@@ -52,24 +52,24 @@ public class AhHelper {
 
         List<String> tooltip = event.getToolTip();
         ItemStack itemStack = event.getItemStack();
-        boolean isSellStick = false;
-        int itemCount = 0;
+        int itemCount = 1; // Default value is 1, will be changed to amount of uses if sellstick
+        int totalCount = 0; // Stack size * uses (just stack size if sellstick)
         String priceString = null;
-        int price = 0;
+        int totalPrice = 0;
         int priceLineIndex = 0;
 
         for (int i = 0; i < tooltip.size(); i++) {
             String line = tooltip.get(i);
             Matcher matcher = pricePattern.matcher(line);
             if (matcher.matches()) {
-                price = Integer.parseInt(matcher.group(1).replaceAll(",", ""));
+                totalPrice = Integer.parseInt(matcher.group(1).replaceAll(",", ""));
                 priceLineIndex = i;
                 priceString = matcher.group(0);
                 break;
             }
         }
 
-        if (price == 0) {
+        if (totalPrice == 0) {
             return;
         }
 
@@ -85,22 +85,12 @@ public class AhHelper {
                 Matcher matcher = usesPattern.matcher(line);
                 if (matcher.matches()) {
                     itemCount = Integer.parseInt(matcher.group(1));
-                    if (itemCount == 1) { return; }
-                    isSellStick = true;
                 }
             }
         }
 
-        if (!(isSellStick)) {
-            if (itemStack.getCount() > 1) {
-                itemCount = itemStack.getCount();
-            } else {
-                return;
-            }
-        }
-
-        int pricePerItem = price / itemCount;
-        String eachText = (isSellStick) ? "/use)" : " each)";
-        tooltip.set(priceLineIndex, priceString + " §7($" + String.format("%,d", pricePerItem) + eachText);
+        totalCount = itemStack.getCount() * itemCount;
+        int pricePerItem = totalPrice / totalCount;
+        tooltip.set(priceLineIndex, priceString + " §7($" + String.format("%,d", pricePerItem) + " each)");
     }
 }
